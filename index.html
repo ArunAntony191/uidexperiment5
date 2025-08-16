@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Diary</title>
+    <style>
+        /* Base Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f4f6;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Navigation */
+        nav {
+            background-color: #2563eb;
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .nav-links button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0.5rem 0;
+        }
+        
+        .nav-links button:hover {
+            text-decoration: underline;
+        }
+        
+        /* Main Content */
+        main {
+            min-height: calc(100vh - 120px);
+            padding: 2rem 0;
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        /* Note Input */
+        .note-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            margin-bottom: 0.5rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .search-container {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+        
+        #searchInput {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem 0 0 0.375rem;
+        }
+        
+        .clear-btn {
+            padding: 0.5rem 1rem;
+            background-color: #e5e7eb;
+            border: 1px solid #d1d5db;
+            border-radius: 0 0.375rem 0.375rem 0;
+            cursor: pointer;
+        }
+        
+        .clear-btn:hover {
+            background-color: #d1d5db;
+        }
+        
+        .save-btn {
+            padding: 0.5rem 1rem;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .save-btn:hover {
+            background-color: #1d4ed8;
+        }
+        
+        /* Notes List */
+        .notes-list {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .note-card {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .note-content {
+            white-space: pre-wrap;
+            margin-bottom: 0.5rem;
+        }
+        
+        .note-meta {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+        
+        .note-actions {
+            margin-top: 0.5rem;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            margin-right: 0.75rem;
+            padding: 0.25rem 0;
+        }
+        
+        .edit-btn {
+            color: #16a34a;
+        }
+        
+        .archive-btn {
+            color: #2563eb;
+        }
+        
+        .delete-btn {
+            color: #dc2626;
+        }
+        
+        .restore-btn {
+            color: #2563eb;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: #e5e7eb;
+            padding: 1rem 0;
+            text-align: center;
+        }
+        
+        /* Dark Mode */
+        body.dark-mode {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        
+        body.dark-mode .note-card {
+            background-color: #2d3748;
+        }
+        
+        body.dark-mode .note-meta {
+            color: #a0aec0;
+        }
+        
+        body.dark-mode footer {
+            background-color: #2d3748;
+        }
+        
+        body.dark-mode .note-input,
+        body.dark-mode #searchInput {
+            background-color: #2d3748;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+        
+        body.dark-mode .clear-btn {
+            background-color: #4a5568;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <nav>
+            <div class="nav-container">
+                <h1 class="nav-title">Digital Diary</h1>
+                <div class="nav-links">
+                    <button onclick="showSection('notes')">Notes</button>
+                    <button onclick="showSection('old-notes')">Old Notes</button>
+                    <button onclick="showSection('archive')">Archive</button>
+                    <button onclick="toggleDarkMode()" id="darkModeToggle">☀️</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Notes Section -->
+            <section id="notes" class="section active">
+                <h2>New Note</h2>
+                <div class="search-container">
+                    <input id="searchInput" type="text" placeholder="Search notes..." oninput="searchNotes()">
+                    <button class="clear-btn" onclick="clearSearch()">Clear</button>
+                </div>
+                <textarea id="noteInput" class="note-input" placeholder="Write your note here..."></textarea>
+                <button class="save-btn" onclick="saveNote()">Save Note</button>
+                <div id="notesList" class="notes-list"></div>
+            </section>
+
+            <!-- Old Notes Section -->
+            <section id="old-notes" class="section">
+                <h2>Old Notes</h2>
+                <div id="oldNotesList" class="notes-list"></div>
+            </section>
+
+            <!-- Archive Section -->
+            <section id="archive" class="section">
+                <h2>Archived Notes</h2>
+                <div id="archiveList" class="notes-list"></div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2025 Digital Diary</p>
+        </footer>
+    </div>
+
+    <script>
+        // App state
+        const state = {
+            notes: JSON.parse(localStorage.getItem('notes')) || [],
+            archivedNotes: JSON.parse(localStorage.getItem('archivedNotes')) || [],
+            isDarkMode: localStorage.getItem('darkMode') === 'true'
+        };
+
+        // DOM Elements
+        const elements = {
+            noteInput: document.getElementById('noteInput'),
+            searchInput: document.getElementById('searchInput'),
+            notesList: document.getElementById('notesList'),
+            oldNotesList: document.getElementById('oldNotesList'),
+            archiveList: document.getElementById('archiveList'),
+            darkModeToggle: document.getElementById('darkModeToggle'),
+            sections: document.querySelectorAll('.section')
+        };
+
+        // Initialize app
+        function init() {
+            applyTheme();
+            updateDarkModeButton();
+            renderNotes();
+        }
+
+        // Theme functions
+        function applyTheme() {
+            document.body.classList.toggle('dark-mode', state.isDarkMode);
+        }
+
+        function updateDarkModeButton() {
+            elements.darkModeToggle.textContent = state.isDarkMode ? '🌙' : '☀️';
+        }
+
+        function toggleDarkMode() {
+            state.isDarkMode = !state.isDarkMode;
+            localStorage.setItem('darkMode', state.isDarkMode);
+            applyTheme();
+            updateDarkModeButton();
+        }
+
+        // Section navigation
+        function showSection(sectionId) {
+            elements.sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+            
+            if (sectionId === 'notes') renderNotes();
+            if (sectionId === 'old-notes') renderOldNotes();
+            if (sectionId === 'archive') renderArchive();
+        }
+
+        // Note functions
+        function saveNote() {
+            const content = elements.noteInput.value.trim();
+            if (content) {
+                const note = {
+                    id: Date.now(),
+                    content,
+                    date: new Date().toLocaleString(),
+                    uploaded: new Date().toLocaleString()
+                };
+                state.notes.push(note);
+                localStorage.setItem('notes', JSON.stringify(state.notes));
+                elements.noteInput.value = '';
+                renderNotes();
+            }
+        }
+
+        function editNote(id, isArchived = false) {
+            const collection = isArchived ? state.archivedNotes : state.notes;
+            const note = collection.find(n => n.id === id);
+            if (note) {
+                const newContent = prompt('Edit your note:', note.content);
+                if (newContent && newContent.trim()) {
+                    note.content = newContent.trim();
+                    note.date = new Date().toLocaleString();
+                    localStorage.setItem(isArchived ? 'archivedNotes' : 'notes', JSON.stringify(collection));
+                    if (isArchived) {
+                        renderArchive();
+                    } else {
+                        renderNotes();
+                    }
+                }
+            }
+        }
+
+        function archiveNote(id) {
+            const note = state.notes.find(n => n.id === id);
+            if (note) {
+                state.archivedNotes.push(note);
+                state.notes = state.notes.filter(n => n.id !== id);
+                localStorage.setItem('notes', JSON.stringify(state.notes));
+                localStorage.setItem('archivedNotes', JSON.stringify(state.archivedNotes));
+                renderNotes();
+            }
+        }
+
+        function deleteNote(id) {
+            state.notes = state.notes.filter(n => n.id !== id);
+            localStorage.setItem('notes', JSON.stringify(state.notes));
+            renderNotes();
+        }
+
+        function renderNotes() {
+            elements.notesList.innerHTML = '';
+            const searchTerm = elements.searchInput.value.toLowerCase();
+            const now = new Date();
+            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            
+            const filteredNotes = state.notes.filter(note => {
+                const uploadedDate = new Date(note.uploaded);
+                return uploadedDate >= sevenDaysAgo && note.content.toLowerCase().includes(searchTerm);
+            });
+            
+            filteredNotes.forEach(note => {
+                const noteElement = document.createElement('div');
+                noteElement.className = 'note-card';
+                noteElement.innerHTML = `
+                    <div class="note-content">${note.content}</div>
+                    <div class="note-meta">Last Edited: ${note.date}</div>
+                    <div class="note-meta">Uploaded: ${note.uploaded}</div>
+                    <div class="note-actions">
+                        <button class="action-btn edit-btn" onclick="editNote(${note.id}, false)">Edit</button>
+                        <button class="action-btn archive-btn" onclick="archiveNote(${note.id})">Archive</button>
+                        <button class="action-btn delete-btn" onclick="deleteNote(${note.id})">Delete</button>
+                    </div>
+                `;
+                elements.notesList.appendChild(noteElement);
+            });
+        }
+
+        function renderOldNotes() {
+            elements.oldNotesList.innerHTML = '';
+            const now = new Date();
+            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            
+            const oldNotes = state.notes.filter(note => new Date(note.uploaded) < sevenDaysAgo);
+            
+            oldNotes.forEach(note => {
+                const noteElement = document.createElement('div');
+                noteElement.className = 'note-card';
+                noteElement.innerHTML = `
+                    <div class="note-content">${note.content}</div>
+                    <div class="note-meta">Last Edited: ${note.date}</div>
+                    <div class="note-meta">Uploaded: ${note.uploaded}</div>
+                    <div class="note-actions">
+                        <button class="action-btn edit-btn" onclick="editNote(${note.id}, false)">Edit</button>
+                        <button class="action-btn archive-btn" onclick="archiveNote(${note.id})">Archive</button>
+                        <button class="action-btn delete-btn" onclick="deleteNote(${note.id})">Delete</button>
+                    </div>
+                `;
+                elements.oldNotesList.appendChild(noteElement);
+            });
+        }
+
+        function searchNotes() {
+            renderNotes();
+        }
+
+        function clearSearch() {
+            elements.searchInput.value = '';
+            renderNotes();
+        }
+
+        function renderArchive() {
+            elements.archiveList.innerHTML = '';
+            
+            state.archivedNotes.forEach(note => {
+                const noteElement = document.createElement('div');
+                noteElement.className = 'note-card';
+                noteElement.innerHTML = `
+                    <div class="note-content">${note.content}</div>
+                    <div class="note-meta">Last Edited: ${note.date}</div>
+                    <div class="note-meta">Uploaded: ${note.uploaded}</div>
+                    <div class="note-actions">
+                        <button class="action-btn edit-btn" onclick="editNote(${note.id}, true)">Edit</button>
+                        <button class="action-btn restore-btn" onclick="restoreNote(${note.id})">Restore</button>
+                        <button class="action-btn delete-btn" onclick="deleteArchivedNote(${note.id})">Delete</button>
+                    </div>
+                `;
+                elements.archiveList.appendChild(noteElement);
+            });
+        }
+
+        function restoreNote(id) {
+            const note = state.archivedNotes.find(n => n.id === id);
+            if (note) {
+                state.notes.push(note);
+                state.archivedNotes = state.archivedNotes.filter(n => n.id !== id);
+                localStorage.setItem('notes', JSON.stringify(state.notes));
+                localStorage.setItem('archivedNotes', JSON.stringify(state.archivedNotes));
+                renderArchive();
+            }
+        }
+
+        function deleteArchivedNote(id) {
+            state.archivedNotes = state.archivedNotes.filter(n => n.id !== id);
+            localStorage.setItem('archivedNotes', JSON.stringify(state.archivedNotes));
+            renderArchive();
+        }
+
+        // Initialize the app when the page loads
+        window.onload = init;
+    </script>
+</body>
+</html>
